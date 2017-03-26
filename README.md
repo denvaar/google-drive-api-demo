@@ -21,3 +21,21 @@ Allows you to...
 Before you can use Google API's, you will need to setup your developer console. Follow step #1 of the NodeJS quickstart guide: https://developers.google.com/drive/v3/web/quickstart/nodejs
 
 Once you have obtained a CLIENT_ID and SECRET_ID, paste them [here](https://github.com/denvaar/google-drive-api-demo/blob/master/main.js#L39).
+
+# Gotcha's
+These are a few things that I got hung up on while working on this demo. Hopefuly I can help to clarify things for others.
+
+### Using the redirect URL
+
+The [quickstart guide](https://developers.google.com/drive/v3/web/quickstart/nodejs) has some awesome example code of getting an OAuth token and making an authenticated request to the Drive API, but this example requires the user to copy and paste the application's authorization key from the browser to the console, which is not very cool. There is a caveat at the end that says:
+>The authorization flow in this example is designed for a command line application. For information on how to perform authorization in other contexts, see the Authorizing and Authenticating. section of the library's README.
+
+Curious to know how to do authorization in those "other contexts," I visited the [library's README](https://github.com/google/google-api-nodejs-client/#authorizing-and-authenticating). The docs basically state that after the consent page, Google will do a redirect to the provided _redirect url_ with the auth code in the query parameters. This part stumped me, because I wasn't quite sure how to provide a redirect url that I could use to get the params. I had an Ah-ha moment when I realized that you can use localhost as that redirect url. That means that if you have an HTTP server running at the address, you can snatch up the auth code that you need. The `http.createServer` function in `main.js` is an example of this.
+
+# Resources
+I found the following links helpful while working on this demo.
+
+- Nodejs quickstart guide: https://developers.google.com/drive/v3/web/quickstart/nodejs
+- Drive API Reference: https://developers.google.com/drive/v3/reference/
+- Using OAuth2 to Access Google API's: https://developers.google.com/identity/protocols/OAuth2
+- OAuth2 for Mobile and Desktop Apps: https://developers.google.com/identity/protocols/OAuth2InstalledApp
