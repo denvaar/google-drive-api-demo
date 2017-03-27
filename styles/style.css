@@ -25,6 +25,19 @@ button:hover {
   background: aliceblue;
 }
 
+
+.play-overlay:before {
+  content: "\f04b";
+  font-family: "FontAwesome";
+  color: #fff;
+  font-size: 30px;
+  position: absolute;
+  top: 70px;
+  left: 100px;
+  cursor: pointer;
+}
+
+
 .cancel-border > div, .cancel-border > div:hover {
   border: none;
 }

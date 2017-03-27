@@ -1,74 +1,18 @@
 import React, { Component } from 'react';
-import {ipcRenderer} from  'electron';
+import { ipcRenderer } from  'electron';
 
+import { ICONS } from '../utils';
 import Modal from './modal';
+import FileItem from './fileItem';
 
-const ICONS = {
-  'application/vnd.google-apps.spreadsheet': "fa fa-2x fa-table",
-  'application/vnd.google-apps.document':    "fa fa-2x fa-file-text-o",
-  'application/pdf':                         "fa fa-2x fa-file-pdf-o",
-  'application/vnd.google-apps.drawing':     "fa fa-2x fa-paint-brush",
-  'application/vnd.google-apps.presentation':"fa fa-2x fa-file-powerpoint-o",
-  'image/png':                               "fa fa-2x fa-file-image-o",
-  'image/jpg':                               "fa fa-2x fa-file-image-o",
-  'image/jpeg':                              "fa fa-2x fa-file-image-o",
-  'video/mp4':                               "fa fa-2x fa-file-video-o"
-}
 
-const humanFileSize = (bytes, si) => {
-    var thresh = si ? 1000 : 1024;
-    if(Math.abs(bytes) < thresh) {
-        return bytes + ' B';
-    }
-    var units = si
-        ? ['kB','MB','GB','TB','PB','EB','ZB','YB']
-        : ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
-    var u = -1;
-    do {
-        bytes /= thresh;
-        ++u;
-    } while(Math.abs(bytes) >= thresh && u < units.length - 1);
-    return bytes.toFixed(1)+' '+units[u];
-}
-
-const FileItem = (props) => {
-  const { id, icon, webContentLink, name, mimeType,
-          size, createdTime, modifiedTime, kind,
-          thumbnailLink, webViewLink } = props.file;
-  return (
-    <div className={props.isExpanded ? "cancel-border" : ""}>
-      <div className="file">
-        <span className="file-icon">{icon}</span>
-        <span className="file-name">{name}</span>
-        <span className="file-size">
-          {size ? humanFileSize(size, true) : '--'}
-        </span>
-        <span className="file-action-icon" onClick={props.downloadFile}>
-          <i className="fa fa-download"></i>
-        </span>
-        <span className="file-action-icon" onClick={props.expand}>
-          <i className="fa fa-ellipsis-v"></i>
-        </span>
-      </div>
-        {props.isExpanded ?
-          <div className="expanded">
-            <p>Thumbnail:</p>
-            <img src={thumbnailLink} />
-            <p>Created Time: {createdTime}</p>
-            <p>Last Modified Time: {modifiedTime}</p>
-            <p>Mime Type: {mimeType}</p>
-            <p>Kind of Resource: {kind}</p>
-            <p>File ID: {id}</p>
-            <p>Web Content Link: {webContentLink || '--'}</p>
-            <p>Web View Link: {webViewLink || '--'}</p>
-            <p>Thumbnail Link: {thumbnailLink || '--'}</p>
-          </div>
-        :
-          null
-        }
-    </div>
-  );
-}
+const uploadButton = {
+  cursor: "pointer",
+  display: "block",
+  background: "aliceblue",
+  fontWeight: "bold",
+  textAlign: "center"
+};
 
 export default class App extends Component {
 
@@ -77,6 +21,7 @@ export default class App extends Component {
     this.state = {
       files: [],
       showDownloadModal: true,
+      showVideoModal: '',
       expanded: null
     };
 
@@ -98,6 +43,10 @@ export default class App extends Component {
         expanded: id
       });
     }
+  }
+
+  createFile() {
+    ipcRenderer.send('create-file', {});
   }
 
   downloadFile() {
@@ -122,6 +71,12 @@ export default class App extends Component {
     }
   }
 
+  showVideoModal(fileId) {
+    this.setState({
+      showVideoModal: fileId
+    });
+  }
+
   render() {
     const files = this.state.files.map(file => {
       let icon = <i className="fa fa-2x fa-file-o"></i>;
@@ -131,6 +86,7 @@ export default class App extends Component {
       return (
         <FileItem
           key={file.id}
+          playVideo={() => this.showVideoModal(file.id)}
           downloadFile={() =>
             this.setState({ downloadData: { fileId: file.id, mimeType: file.mimeType } }, () => this.downloadFile())}
           expand={() => this.expandFile(file.id)}
@@ -146,14 +102,13 @@ export default class App extends Component {
     
     return (
       <div className="center">
-        {/*
-        {this.state.token ? 
-          <video controls="controls">
-            <source src={`https://drive.google.com/uc?id=0B6DmS8Tq6scFXzI5clNjWGZQUWc&export=view&access_token=${this.state.token}`} type='video/mp4'/>
+        <Modal isVisible={this.state.showVideoModal.length > 0}
+               onClose={() => this.setState({ showVideoModal: '' })}>
+          <h2>Stream Video</h2>
+          <video style={{width: "100%"}} controls="controls">
+            <source src={`https://drive.google.com/uc?id=${this.state.showVideoModal}&export=view&access_token=${this.state.token}`} type='video/mp4'/>
           </video>
-        :
-          null
-        }*/}
+        </Modal>
         <h2>Google Drive API Demo</h2>
         {this.state.exportFormats && this.state.mimeTypes ? 
           <Modal
@@ -185,7 +140,12 @@ export default class App extends Component {
         :
           null
         }
-        {files ? files : <p>LOADING...</p>}
+        <div>
+          <div className="file" style={uploadButton} onClick={() => this.createFile()}>
+            <i className="fa fa-plus-square-o"></i> Upload File to Drive
+          </div>
+          {files}
+        </div>
       </div>
     );
   }

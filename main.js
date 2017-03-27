@@ -1,11 +1,11 @@
-
-const electron = require('electron');
-var dialog = electron.dialog;
+var mime = require('mime');
 var google = require('googleapis');
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
 var service = google.drive('v3');
+const electron = require('electron');
+var dialog = electron.dialog;
 const ipc = electron.ipcMain;
 const app = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
@@ -38,7 +38,7 @@ app.on('ready', function() {
   var oauth2Client = new OAuth2(
     "", //< CLIENT_ID >
     "", // < SECRET_ID >
-    "http://localhost:8080"
+    ""
   );
   
   // Check if we have previously stored a token.
@@ -52,8 +52,6 @@ app.on('ready', function() {
     }
   });
 
-
-  // generate a url that asks permissions for Google+ and Google Calendar scopes
   var scopes = [
     'https://www.googleapis.com/auth/drive'
   ];
@@ -147,6 +145,50 @@ ipc.on('download-file', function(event, data) {
         console.log('error during download');
       })
       .pipe(fileObject);
+    }
+  });
+});
+
+ipc.on('create-file', function(event, data) {
+  dialog.showOpenDialog({properties: ['openFile']}, function(fileNames) {
+    if (fileNames.length >= 1) {
+      
+      var media = {
+        body: fs.createReadStream(fileNames[0]),
+        mimeType: mime.lookup(fileNames[0])
+      };
+
+      var fileData = {
+        name: fileNames[0].replace(/^.*[\\\/]/, '')
+      };
+      
+      service.files.create({
+        auth: AUTH,
+        resource: fileData,
+        media: media,
+        fields: 'id',
+      }, function(error, file) {
+        if (error) console.log('error during download');
+        else {
+          service.files.list({
+            auth: AUTH,
+            q: "not mimeType contains 'python' and not mimeType contains 'folder'",
+            pageSize: 50,
+            fields: "nextPageToken, files(id, name, modifiedTime, kind, createdTime, thumbnailLink, mimeType, size, webContentLink)"
+          }, function(err, response) {
+            if (err) {
+              console.log('The API returned an error: ' + err);
+              return;
+            }
+            var files = response.files;
+            if (files.length == 0) {
+              console.log('No files found.');
+            } else {
+              mainWindow.send('load-files', files, AUTH.credentials.access_token);
+            }
+          });
+        }
+      });
     }
   });
 });
