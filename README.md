@@ -9,6 +9,14 @@ Allows you to...
 - Upload and create new files to your Google Drive
 - Play private videos directly from your Google Drive
 
+Stream Videos  | View Files and Details
+:-----:|:-----:
+<img width=380 src="https://cloud.githubusercontent.com/assets/10538978/24336921/cc71c1e8-1253-11e7-9c4c-921f6e04ef9c.png" /> | <img width=380 src="https://cloud.githubusercontent.com/assets/10538978/24336922/cc8333ce-1253-11e7-9a77-b93ccc40417f.png" />
+
+Ask user consent  | Export & Download
+:-----:|:-----:
+<img width=380 src="https://cloud.githubusercontent.com/assets/10538978/24336963/7b5e46ae-1254-11e7-81c1-dd02a462e1b0.png" /> | <img width=380 src="https://cloud.githubusercontent.com/assets/10538978/24336924/cc8a3516-1253-11e7-90b7-9c8f016ca320.png" />
+
 # Setup
 
 ### Project Setup
