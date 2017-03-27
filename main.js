@@ -38,7 +38,7 @@ app.on('ready', function() {
   var oauth2Client = new OAuth2(
     "", //< CLIENT_ID >
     "", // < SECRET_ID >
-    ""
+    "http://localhost:8080" // addr of our web server that will be listening
   );
   
   // Check if we have previously stored a token.
