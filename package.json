@@ -7,7 +7,9 @@
     "build": "webpack",
     "watch": "./node_modules/.bin/webpack-dev-server --host 0.0.0.0 --port 3000",
     "start": "./node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron .",
-    "electron-rebuild": "./node_modules/.bin/electron-rebuild --version=1.6.2"
+    "electron-rebuild": "./node_modules/.bin/electron-rebuild --version=1.6.2",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "keywords": [],
   "author": "Denver Smith",
@@ -20,7 +22,8 @@
     "react": "^15.3.2",
     "react-addons-css-transition-group": "^15.3.2",
     "react-dom": "^15.3.2",
-    "react-hot-loader": "^1.3.0"
+    "react-hot-loader": "^1.3.0",
+    "snyk": "^1.42.6"
   },
   "devDependencies": {
     "babel-core": "^6.11.4",
@@ -37,5 +40,6 @@
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
-  }
+  },
+  "snyk": true
 }
